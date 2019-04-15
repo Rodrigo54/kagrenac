@@ -4,8 +4,8 @@
 ## Description: <%= description %>
 <% } -%>
 ## Author: <%= author %>
-## Version: 1.0.0
-## AddOnVersion: 100
+## Version: <%= version %>
+## AddOnVersion: <%= addOnVersion %>
 <% if (variables) { -%>
 ## SavedVariables: <%= variables %>
 <% } -%>

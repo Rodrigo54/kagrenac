@@ -3,16 +3,18 @@
   "version": "0.1.0",
   "author": "ESOUI Community",
   "bin": {
-    "kag": "./bin/run"
+    "kag": "./bin/run",
+    "kagrenac": "./bin/run"
   },
   "bugs": "https://github.com/esoui/kagrenac/issues",
   "dependencies": {
-    "@oclif/command": "^1",
+    "@oclif/command": "^1.5.12",
     "@oclif/config": "^1",
     "@oclif/plugin-help": "^2",
     "@types/yeoman-generator": "^3.0.2",
     "change-case": "^3.1.0",
-    "platform-folders": "^0.3.2",
+    "enquirer": "^2.3.0",
+    "os": "^0.1.1",
     "tslib": "^1.9.3",
     "yeoman-environment": "^2.3.4",
     "yeoman-generator": "^3.2.0"

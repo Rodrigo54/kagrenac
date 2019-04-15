@@ -1,16 +1,17 @@
-import { Command, flags } from "@oclif/command";
-import { pascal } from "change-case";
-import { promises as fs } from "fs";
-import * as path from "path";
-import { getDocumentsFolder } from "platform-folders";
+import { Command, flags } from '@oclif/command';
+import { pascal } from 'change-case';
+import { prompt } from 'enquirer';
+import * as fs from 'fs';
+import * as os from 'os';
+import * as path from 'path';
+import { promisify } from 'util';
 
-// import { createEnv } from "yeoman-environment";
 const createEnv = require("yeoman-environment").createEnv;
 
 const isDirectory = async (...parts: string[]): Promise<boolean> => {
   try {
     const dir = path.resolve(...parts);
-    const stats = await fs.stat(dir);
+    const stats = await promisify(fs.stat)(dir);
     return stats.isDirectory();
   } catch {
     return false;
@@ -36,6 +37,10 @@ export default class Create extends Command {
   static flags = {
     help: flags.help({
       char: "h"
+    }),
+    skipPrompt: flags.boolean({
+      char: "s",
+      default: false,
     }),
     template: flags.string({
       char: "t",
@@ -104,19 +109,78 @@ export default class Create extends Command {
   async run() {
     const { args, flags } = this.parse(Create);
 
+    const response: any = !flags.skipPrompt ? await prompt([
+      {
+        type: 'select',
+        name: 'template',
+        message: 'Please select a template:',
+        initial: 'standalone',
+        choices: [
+          { name: 'standalone', message: 'Blank - A minimal addon with only the bare necessities'},
+          { name: 'addon', message: 'Addon - A template with everything addons regularly need'},
+          { name: 'library', message: 'Library - A template specifically for libraries'},
+          { name: 'superduper', message: 'MySuperDuperTemplate - Has all the secret sauce'},
+        ]
+      },
+      {
+        type: 'input',
+        name: 'name',
+        message: 'What should the addon be called?',
+        initial: pascal(args.title)
+      },
+      {
+        type: 'input',
+        name: 'author',
+        message: 'Who is the author?'
+      },
+      {
+        type: 'multiselect',
+        name: 'api',
+        message: 'Which API versions should it support?',
+        initial: '100026',
+        choices: [
+          { name: '100027', message: 'Chapter: Elsweyr'},
+          { name: '100026', message: 'Wrathstone DLC'},
+          { name: '100025', message: 'Murkmire  DLC'},
+          { name: '100024', message: 'Wolfhunter  DLC'},
+        ],
+      },
+      {
+        type: 'input',
+        name: 'version',
+        message: 'What Version should it start with?',
+        initial: '1.0.0'
+      },
+      {
+        type: 'input',
+        name: 'addOnVersion',
+        message: 'What AddOnVersion should it start with?',
+        initial: '100'
+      },
+    ]) : {
+      version: '1.0.0',
+      addOnVersion: '100'
+    };
+
     const opts = {
       now: new Date(),
       ...flags,
-      ...args
+      ...args,
+      ...response
     };
 
-    if (!flags.name) {
+    if (flags.skipPrompt && !flags.name) {
       opts.name = pascal(args.title);
+    }
+
+    if(Array.isArray(opts.api)) {
+      opts.api = opts.api.join(" ");
     }
 
     if (!opts.path) {
       opts.path = path.join(
-        getDocumentsFolder(),
+        os.homedir(),
+        "Documents",
         "Elder Scrolls Online",
         "live",
         "AddOns"
@@ -132,15 +196,18 @@ export default class Create extends Command {
       this.error(`directory '${opts.directory}' already exist`);
     }
 
+    const template = flags.skipPrompt ? flags.template : response.template;
+
     opts.template = await selectValidDirectory(
-      path.resolve(flags.template),
-      path.resolve(__dirname, "..", "..", "templates", flags.template)
+      path.resolve(template),
+      path.resolve(__dirname, "..", "..", "templates", template)
     );
 
     if (!opts.template) {
-      this.error(`template '${flags.template}' could not be read`);
+      this.error(`template '${template}' could not be read`);
     }
 
+    // this.log(opts);
     await this.generate("add-on", opts);
   }
 }
