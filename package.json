@@ -13,7 +13,6 @@
     "@types/yeoman-generator": "^3.0.2",
     "change-case": "^3.1.0",
     "enquirer": "^2.3.0",
-    "os": "^0.1.1",
     "tslib": "^1.9.3",
     "yeoman-environment": "^2.3.4",
     "yeoman-generator": "^3.2.0"
