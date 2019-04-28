@@ -3,8 +3,7 @@
   "version": "0.1.0",
   "author": "ESOUI Community",
   "bin": {
-    "kag": "./bin/run",
-    "kagrenac": "./bin/run"
+    "kag": "./bin/run"
   },
   "bugs": "https://github.com/esoui/kagrenac/issues",
   "dependencies": {
